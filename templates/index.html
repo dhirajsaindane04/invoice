@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-invoicing Tool</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <img src="static/img/kraftLogo.png" alt="Amway Logo" loading="lazy" />
+        </div>
+        <h1>E-Invoicing Portal</h1>
+    </header>
+    <h2>Upload Your PDF Invoice</h2>
+    <main>
+        <div class="upload-container">
+            <form id="upload-form" enctype="multipart/form-data">
+                <label for="pdfInput" class="custom-file-upload">
+                    <i class="fa fa-file-pdf-o pdf-icon" style="font-size:20px;color:red"></i>
+                    Choose PDF file
+                </label>
+                <input id="pdfInput" hidden type="file" name="pdf" accept="application/pdf" required onchange="showFileName()">
+                <span id="file-name" class="file-name"></span>
+                <button type="button" onclick="previewPDF()">Preview & Extract</button>
+            </form>
+            <div class="drop-container" id="drop-container">
+                <p>Or drag and drop a PDF file here</p>
+            </div>
+        </div>
+    </main>
+    
+    <div class="pdf-preview-container" id="pdf-preview-container" style="display: none;">
+        <h5>Preview PDF</h5>
+        <iframe id="pdf-preview" class="pdf-preview" frameborder="0"></iframe>
+    </div>
+    <div class="form-container" style="display: none;">
+        <h2>Invoice Details</h2>
+        <form id="invoice-form">
+            <label for="invoiceNo">Invoice Number:</label>
+            <input type="text" id="invoiceNo" name="invoiceNo" required><br>
+
+            <label for="invoiceDate">Invoice Date:</label>
+            <input type="date" id="invoiceDate" name="invoiceDate" required><br>
+
+            <label for="panNumber">PAN Number:</label>
+            <input type="text" id="panNumber" name="panNumber" required><br>
+
+            <label for="gstIn">GSTIN:</label>
+            <input type="text" id="gstIn" name="gstIn" required><br>
+
+            <label for="dueDate">Due Date:</label>
+            <input type="date" id="dueDate" name="dueDate" required><br>
+
+            <label for="mobileNumber">Mobile Number:</label>
+            <input type="tel" id="mobileNumber" name="mobileNumber" required><br>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <script>
+        function showFileName() {
+            var fileInput = document.getElementById('pdfInput');
+            var fileNameSpan = document.getElementById('file-name');
+            fileNameSpan.textContent = fileInput.files[0].name;
+        }
+
+        function previewPDF() {
+            var fileInput = document.getElementById('pdfInput').files[0];
+            var pdfPreview = document.getElementById('pdf-preview');
+            var pdfPreviewContainer = document.getElementById('pdf-preview-container');
+            var formContainer = document.querySelector('.form-container');
+
+            if (fileInput && fileInput.type === 'application/pdf') {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    pdfPreview.src = e.target.result;
+                    pdfPreviewContainer.style.display = 'block';
+                    formContainer.style.display = 'block'; // Display the form
+                };
+                reader.readAsDataURL(fileInput);
+            } else {
+                Swal.fire({
+                    position: "center",
+                    icon: "warning",
+                    text: "Whoops!! Select a PDF File",
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+        }
+
+        document.getElementById('drop-container').addEventListener('dragover', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.add('dragging');
+        });
+
+        document.getElementById('drop-container').addEventListener('dragleave', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('dragging');
+        });
+
+        document.getElementById('drop-container').addEventListener('drop', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('dragging');
+            var files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                document.getElementById('pdfInput').files = files;
+                showFileName();
+            } else {
+                Swal.fire({
+                    position: "center",
+                    icon: "warning",
+                    text: "Whoops!! Select a PDF File",
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+        });
+
+        document.getElementById('pdfInput').addEventListener('change', function () {
+            var fileInput = this.files[0];
+            showFileName();
+        });
+    </script>
+</body>
+
+</html>
